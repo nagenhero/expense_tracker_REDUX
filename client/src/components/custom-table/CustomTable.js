@@ -1,0 +1,125 @@
+import React, { useEffect, useState } from "react";
+import { Alert, Button, Form, Table } from "react-bootstrap";
+import { deleteTransactions, getTransactions } from "../../helpers/axiosHelper";
+
+import { useDispatch, useSelector } from "react-redux";
+import { deleteTransactionAction, fetchTransactionsAction } from "../../pages/dashboard/dashboard.action";
+
+export const CustomTable = () => {
+  const dispatch = useDispatch();
+  // const [transactions, setTransactions] = useState([]);
+  const { transactions } = useSelector((state) => state.dashboard);
+  const [ids, setIds] = useState([]);
+  const [resp, setResp] = useState({});
+
+  useEffect(() => {
+    //call fuction to call api to feth all the transactions
+    // fetchTransactions();
+    dispatch(fetchTransactionsAction());
+  }, []);
+
+  // const fetchTransactions = async () => {
+  //   // let's call axios to fetch all the transactions
+  //   const data = await getTransactions();
+  //   if (data.status === "success") {
+  //     setTransactions(data.result);
+  //   }
+  // };
+
+  const handleOnCheck = (e) => {
+    const { checked, value } = e.target;
+    if (checked) {
+      //add id to the array
+      setIds([...ids, value]);
+    } else {
+      //remove id from the array
+
+      const filtedIds = ids.filter((id) => id !== value);
+      setIds(filtedIds);
+    }
+  };
+
+  const handleOnDelete = async () => {
+    // cals api to delete the selected transactions
+    if (
+      !window.confirm(
+        `Are you sure you want to delete ${ids.length} transactions?`
+      )
+    )
+      return;
+
+    // call api
+    dispatch(deleteTransactionAction(ids));
+    
+      setIds([]);
+   // setResp(result);
+    ///TODO: if satus is success then refetch the transactions
+  };
+
+  const balance = transactions.reduce((acc, curr) => {
+    return curr.type === "income" ? acc + curr.amount : acc - curr.amount;
+  }, 0);
+
+  return (
+    <div className="mt-5">
+      {transactions.length} transactions found!
+      <Table hover>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Date</th>
+            <th>Title</th>
+            <th>Expenses</th>
+            <th>Income</th>
+          </tr>
+        </thead>
+        <tbody>
+          {transactions.map((trans, i) => (
+            <tr key={trans._id}>
+              <td>
+                <Form.Check value={trans._id} onChange={handleOnCheck} />
+              </td>
+              <td>{new Date(trans.createdAt).toLocaleDateString()}</td>
+              <td>{trans.title}</td>
+              {trans.type === "income" ? (
+                <>
+                  <td></td>
+                  <td>
+                    <span className="text-success">${trans.amount}</span>
+                  </td>
+                </>
+              ) : (
+                <>
+                  <td>
+                    <span className="text-danger">-${trans.amount}</span>
+                  </td>
+                  <td></td>
+                </>
+              )}
+            </tr>
+          ))}
+          <tr>
+            <td colSpan={5} className="text-end fw-bold">
+              Balance ${balance}
+            </td>
+          </tr>
+        </tbody>
+      </Table>
+      {resp.message && (
+        <Alert variant={resp.status === "success" ? "success" : "danger"}>
+          {resp.message}
+        </Alert>
+      )}
+      {ids.length > 0 && (
+        <Button variant="danger" onClick={handleOnDelete}>
+          Delete {ids.length} selectd transactions
+        </Button>
+      )}
+    </div>
+  );
+};
+
+
+<section>
+  
+</section>
