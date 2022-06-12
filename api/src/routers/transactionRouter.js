@@ -3,7 +3,7 @@ import {
   createTransaction,
   deleteTransactions,
   findTransactions,
-} from "../modules/Transaction/Transaction.model.js";
+} from "../modules/transaction/Transaction.model.js";
 const router = express.Router();
 
 router.get("/", async (req, res) => {
