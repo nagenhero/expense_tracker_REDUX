@@ -1,6 +1,7 @@
 import "dotenv/config";
 
 import express from 'express';
+import path from "path";
 const app = express();
 
 const PORT = process.env.PORT || 8000;
@@ -13,6 +14,10 @@ app.use(cors())
 //db connection
 import createConnection from "./src/config/dbConfig.js";
 createConnection();
+//path dorectory
+const __dirname =path.resolve();
+app.use(express.static(path.resolve(__dirname,"./client/build"))); 
+
 
 
 //load middlewares
@@ -24,8 +29,8 @@ app.use("/api/v1/transactions", transactionRouter);
 
 
 //for frontend static content
-app.get('/', (req, res) => {
-    res.send("we will send react app here");
+app.get('*', (req, res) => {
+res.sendFile(path.resolve(__dirname,"./client/build","index.html"));
 })
 
 
